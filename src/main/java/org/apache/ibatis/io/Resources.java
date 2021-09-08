@@ -26,17 +26,18 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
- * A class to simplify access to resources through the classloader.
+ * 通过类加载器简化对资源的访问的类。
  *
  * @author Clinton Begin
  */
 public class Resources {
-
+  /**
+   * 类加载器包装类，主要用来解析相关的资源
+   */
   private static ClassLoaderWrapper classLoaderWrapper = new ClassLoaderWrapper();
 
   /**
-   * Charset to use when calling getResourceAsReader.
-   * null means use the system default.
+   * 调用 getResourceAsReader 时候的字符集
    */
   private static Charset charset;
 
@@ -44,44 +45,34 @@ public class Resources {
   }
 
   /**
-   * Returns the default classloader (may be null).
-   *
-   * @return The default classloader
+   * 获取默认的类加载器
    */
   public static ClassLoader getDefaultClassLoader() {
     return classLoaderWrapper.defaultClassLoader;
   }
 
   /**
-   * Sets the default classloader
-   *
-   * @param defaultClassLoader - the new default ClassLoader
+   * 设置默认的类加载器
    */
   public static void setDefaultClassLoader(ClassLoader defaultClassLoader) {
     classLoaderWrapper.defaultClassLoader = defaultClassLoader;
   }
 
   /**
-   * Returns the URL of the resource on the classpath
-   *
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 返回类路径上资源的URL
+   * @param resource 需要查找的资源
    */
   public static URL getResourceURL(String resource) throws IOException {
-    // issue #625
     return getResourceURL(null, resource);
   }
 
   /**
-   * Returns the URL of the resource on the classpath
-   *
-   * @param loader   The classloader used to fetch the resource
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 返回类路径上资源的URL
+   * @param loader   用于获取类资源的类加载器
+   * @param resource 需要查找的资源
    */
   public static URL getResourceURL(ClassLoader loader, String resource) throws IOException {
+    //获取资源URL
     URL url = classLoaderWrapper.getResourceAsURL(resource, loader);
     if (url == null) {
       throw new IOException("Could not find resource " + resource);
@@ -90,23 +81,18 @@ public class Resources {
   }
 
   /**
-   * Returns a resource on the classpath as a Stream object
-   *
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 Stream 对象返回
+   * @param resource 需要加载的资源
    */
   public static InputStream getResourceAsStream(String resource) throws IOException {
     return getResourceAsStream(null, resource);
   }
 
   /**
-   * Returns a resource on the classpath as a Stream object
+   * 将类路径上的资源作为 Stream 对象返回
    *
-   * @param loader   The classloader used to fetch the resource
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * @param loader 加载资源的类加载器
+   * @param resource 需要加载的资源
    */
   public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException {
     InputStream in = classLoaderWrapper.getResourceAsStream(resource, loader);
@@ -117,27 +103,21 @@ public class Resources {
   }
 
   /**
-   * Returns a resource on the classpath as a Properties object
-   *
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 Properties 对象返回
+   * @param resource 需要查找的资源
    */
   public static Properties getResourceAsProperties(String resource) throws IOException {
     Properties props = new Properties();
+    //查找资源
     try (InputStream in = getResourceAsStream(resource)) {
+      //将InputStream流转化为Properties文件
       props.load(in);
     }
     return props;
   }
 
   /**
-   * Returns a resource on the classpath as a Properties object
-   *
-   * @param loader   The classloader used to fetch the resource
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 Properties 对象返回
    */
   public static Properties getResourceAsProperties(ClassLoader loader, String resource) throws IOException {
     Properties props = new Properties();
@@ -148,11 +128,7 @@ public class Resources {
   }
 
   /**
-   * Returns a resource on the classpath as a Reader object
-   *
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 Reader 对象返回
    */
   public static Reader getResourceAsReader(String resource) throws IOException {
     Reader reader;
@@ -165,12 +141,7 @@ public class Resources {
   }
 
   /**
-   * Returns a resource on the classpath as a Reader object
-   *
-   * @param loader   The classloader used to fetch the resource
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 Reader 对象返回
    */
   public static Reader getResourceAsReader(ClassLoader loader, String resource) throws IOException {
     Reader reader;
@@ -183,34 +154,22 @@ public class Resources {
   }
 
   /**
-   * Returns a resource on the classpath as a File object
+   * 将类路径上的资源作为 File 对象返回
    *
-   * @param resource The resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
    */
   public static File getResourceAsFile(String resource) throws IOException {
     return new File(getResourceURL(resource).getFile());
   }
 
   /**
-   * Returns a resource on the classpath as a File object
-   *
-   * @param loader   - the classloader used to fetch the resource
-   * @param resource - the resource to find
-   * @return The resource
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 将类路径上的资源作为 File 对象返回
    */
   public static File getResourceAsFile(ClassLoader loader, String resource) throws IOException {
     return new File(getResourceURL(loader, resource).getFile());
   }
 
   /**
-   * Gets a URL as an input stream
-   *
-   * @param urlString - the URL to get
-   * @return An input stream with the data from the URL
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 获取一个 URL 作为输入流
    */
   public static InputStream getUrlAsStream(String urlString) throws IOException {
     URL url = new URL(urlString);
@@ -219,11 +178,7 @@ public class Resources {
   }
 
   /**
-   * Gets a URL as a Reader
-   *
-   * @param urlString - the URL to get
-   * @return A Reader with the data from the URL
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 获取一个 URL 作为 Reader
    */
   public static Reader getUrlAsReader(String urlString) throws IOException {
     Reader reader;
@@ -236,11 +191,7 @@ public class Resources {
   }
 
   /**
-   * Gets a URL as a Properties object
-   *
-   * @param urlString - the URL to get
-   * @return A Properties object with the data from the URL
-   * @throws java.io.IOException If the resource cannot be found or read
+   * 通过一个URL获取一个Properties
    */
   public static Properties getUrlAsProperties(String urlString) throws IOException {
     Properties props = new Properties();
@@ -251,11 +202,7 @@ public class Resources {
   }
 
   /**
-   * Loads a class
-   *
-   * @param className - the class to fetch
-   * @return The loaded class
-   * @throws ClassNotFoundException If the class cannot be found (duh!)
+   * 通过类名称加载类
    */
   public static Class<?> classForName(String className) throws ClassNotFoundException {
     return classLoaderWrapper.classForName(className);

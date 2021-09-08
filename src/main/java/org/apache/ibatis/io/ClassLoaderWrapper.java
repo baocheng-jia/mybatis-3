@@ -21,15 +21,26 @@ import java.net.URL;
 /**
  * A class to wrap access to multiple class loaders making them work as one
  *
+ * 一个类来包装对多个类加载器的访问，使它们作为一个工作
+ *
  * @author Clinton Begin
  */
 public class ClassLoaderWrapper {
-
+  /**
+   * 默认类加载器
+   */
   ClassLoader defaultClassLoader;
+  /**
+   * 系统类加载器
+   */
   ClassLoader systemClassLoader;
 
+  /**
+   * 构造方法，只能被相同包内的class进行构建
+   */
   ClassLoaderWrapper() {
     try {
+      //获取当前类的系统类加载器
       systemClassLoader = ClassLoader.getSystemClassLoader();
     } catch (SecurityException ignored) {
       // AccessControlException on Google App Engine
@@ -37,41 +48,35 @@ public class ClassLoaderWrapper {
   }
 
   /**
-   * Get a resource as a URL using the current class path
-   *
-   * @param resource - the resource to locate
-   * @return the resource or null
+   * 使用当前类路径获取资源作为 URL
+   * @param resource - 需要定位的资源
    */
   public URL getResourceAsURL(String resource) {
     return getResourceAsURL(resource, getClassLoaders(null));
   }
 
   /**
-   * Get a resource from the classpath, starting with a specific class loader
-   *
-   * @param resource    - the resource to find
-   * @param classLoader - the first classloader to try
-   * @return the stream or null
+   * 从类路径中获取资源，从特定的类加载器开始
+   * @param resource  要查找的资源
+   * @param classLoader 第一个尝试的类加载器
    */
   public URL getResourceAsURL(String resource, ClassLoader classLoader) {
     return getResourceAsURL(resource, getClassLoaders(classLoader));
   }
 
   /**
-   * Get a resource from the classpath
+   * 从类路径里面获取资源
    *
-   * @param resource - the resource to find
-   * @return the stream or null
+   * @param resource 需要查找的资源
    */
   public InputStream getResourceAsStream(String resource) {
     return getResourceAsStream(resource, getClassLoaders(null));
   }
 
   /**
-   * Get a resource from the classpath, starting with a specific class loader
-   *
-   * @param resource    - the resource to find
-   * @param classLoader - the first class loader to try
+   * 从类路径中获取资源，从特定的类加载器开始
+   * @param resource  要查找的资源
+   * @param classLoader 第一个尝试的类加载器
    * @return the stream or null
    */
   public InputStream getResourceAsStream(String resource, ClassLoader classLoader) {
@@ -79,52 +84,51 @@ public class ClassLoaderWrapper {
   }
 
   /**
-   * Find a class on the classpath (or die trying)
-   *
-   * @param name - the class to look for
-   * @return - the class
-   * @throws ClassNotFoundException Duh.
+   * 在类路径上找到一个类
+   * @param name - 需要查找的类名称
+   * @throws ClassNotFoundException 找不到的时候抛出的异常
    */
   public Class<?> classForName(String name) throws ClassNotFoundException {
     return classForName(name, getClassLoaders(null));
   }
 
   /**
-   * Find a class on the classpath, starting with a specific classloader (or die trying)
-   *
-   * @param name        - the class to look for
-   * @param classLoader - the first classloader to try
+   * 在类路径上找到一个类，从特定的类加载器开始（或尝试尝试）
+   * @param name   需要查找的资源
+   * @param classLoader - 第一个尝试的类加载器
    * @return - the class
-   * @throws ClassNotFoundException Duh.
+   * @throws ClassNotFoundException 找不到的时候抛出的异常
    */
   public Class<?> classForName(String name, ClassLoader classLoader) throws ClassNotFoundException {
     return classForName(name, getClassLoaders(classLoader));
   }
 
   /**
-   * Try to get a resource from a group of classloaders
+   * 尝试从一组类加载器中获取资源
    *
    * @param resource    - the resource to get
    * @param classLoader - the classloaders to examine
    * @return the resource or null
    */
   InputStream getResourceAsStream(String resource, ClassLoader[] classLoader) {
+    //从类加载器列表里进行尝试加载资源
     for (ClassLoader cl : classLoader) {
+      //当前类加载器不为空，尝试加载
       if (null != cl) {
 
-        // try to find the resource as passed
+        //尝试查找通过的资源文件
         InputStream returnValue = cl.getResourceAsStream(resource);
-
-        // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
+        //查找的是空，加上路径/进行尝试
         if (null == returnValue) {
           returnValue = cl.getResourceAsStream("/" + resource);
         }
-
+        //查找到了就返回对应的数据，不在使用后面的类加载器进行资源的查找
         if (null != returnValue) {
           return returnValue;
         }
       }
     }
+    //没有找到
     return null;
   }
 
@@ -136,73 +140,63 @@ public class ClassLoaderWrapper {
    * @return the resource or null
    */
   URL getResourceAsURL(String resource, ClassLoader[] classLoader) {
-
     URL url;
-
     for (ClassLoader cl : classLoader) {
-
       if (null != cl) {
-
-        // look for the resource as passed in...
+        //获取路径资源
         url = cl.getResource(resource);
-
-        // ...but some class loaders want this leading "/", so we'll add it
-        // and try again if we didn't find the resource
         if (null == url) {
           url = cl.getResource("/" + resource);
         }
-
-        // "It's always in the last place I look for it!"
-        // ... because only an idiot would keep looking for it after finding it, so stop looking already.
         if (null != url) {
           return url;
         }
-
       }
-
     }
-
-    // didn't find it anywhere.
     return null;
-
   }
 
   /**
-   * Attempt to load a class from a group of classloaders
-   *
-   * @param name        - the class to load
-   * @param classLoader - the group of classloaders to examine
-   * @return the class
-   * @throws ClassNotFoundException - Remember the wisdom of Judge Smails: Well, the world needs ditch diggers, too.
+   * 尝试加载类
+   * @param name  需要加载的类名字
+   * @param classLoader 类加载器
    */
   Class<?> classForName(String name, ClassLoader[] classLoader) throws ClassNotFoundException {
-
     for (ClassLoader cl : classLoader) {
-
       if (null != cl) {
-
         try {
-
           return Class.forName(name, true, cl);
-
         } catch (ClassNotFoundException e) {
-          // we'll ignore this until all classloaders fail to locate the class
         }
-
       }
-
     }
-
     throw new ClassNotFoundException("Cannot find class: " + name);
-
   }
 
+  /**
+   *
+   * 获取当前类的加载器列表，一共返回五个类加载器，分别是：
+   * 1、请求里面传递过来的类加载器
+   * 2、默认加载器
+   * 3、当前线程上下文类加载器
+   * 4、当前类的类加载器
+   * 5、系统类加载器
+   *
+   * 加载当前类的就是通过这个类加载器列表逐个进行尝试加载该类
+   * @param classLoader
+   * @return
+   */
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
+        //指定的加载器
         classLoader,
+        //默认加载器
         defaultClassLoader,
+        //当前线程的上下文类加载器
         Thread.currentThread().getContextClassLoader(),
+        //当前类的类加载器
         getClass().getClassLoader(),
+        //系统类加载器
         systemClassLoader};
   }
 
