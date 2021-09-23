@@ -30,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * @author Clinton Begin
+ * StatementHandler的直接实现类
  */
 public class RoutingStatementHandler implements StatementHandler {
 

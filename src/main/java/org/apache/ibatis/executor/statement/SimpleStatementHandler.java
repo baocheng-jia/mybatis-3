@@ -33,7 +33,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * @author Clinton Begin
+ * 管理Statement对象并且向数据库中推送不需要预编译的SQL语句
  */
 public class SimpleStatementHandler extends BaseStatementHandler {
 

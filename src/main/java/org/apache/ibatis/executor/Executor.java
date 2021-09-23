@@ -28,6 +28,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * sql执行器，主要提供基本的sql功能，例如：查询，更新等
  * @author Clinton Begin
  */
 public interface Executor {

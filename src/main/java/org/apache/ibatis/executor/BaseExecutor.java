@@ -45,7 +45,8 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * @author Clinton Begin
+ * Executor的默认实现方式，采用了适配器模式，在这里面实现了大部分Executor的功能，降低了接口实现的难度。
+ * 该抽象类里面具有三个实现类
  */
 public abstract class BaseExecutor implements Executor {
 

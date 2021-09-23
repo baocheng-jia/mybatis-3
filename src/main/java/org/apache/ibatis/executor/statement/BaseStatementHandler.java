@@ -34,6 +34,11 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * Statement的另一个实现类，是进行了一层抽象，适配器设计模式，基于该类还有三个实现类
+ *
+ * 适配器模式：
+ *  1、结构性设计模式
+ *  2、用于兼容两种不同的接口（不同接口的桥梁）
  * @author Clinton Begin
  */
 public abstract class BaseStatementHandler implements StatementHandler {
